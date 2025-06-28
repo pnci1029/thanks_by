@@ -4,8 +4,11 @@ import 'providers/diary_provider.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/write/write_screen.dart';
 import 'screens/calendar/calendar_screen.dart';
+import 'screens/stats/stats_screen.dart';
+import 'core/theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
@@ -22,12 +25,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Thanks Diary',
-      theme: ThemeData(primarySwatch: Colors.teal),
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       routes: {
         '/': (_) => const HomeScreen(),
         '/write': (_) => const WriteScreen(),
         '/calendar': (_) => const CalendarScreen(),
+        '/stats': (_) => const StatsScreen(),
       },
     );
   }
