@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/models/diary.dart';
 import '../data/db/diary_database.dart';
+import 'package:intl/intl.dart';
 
 class DiaryProvider with ChangeNotifier {
   Diary? _todayDiary;
@@ -50,5 +51,21 @@ class DiaryProvider with ChangeNotifier {
     } catch (_) {
       return null;
     }
+  }
+
+  // 최근 1주일간 감정별 카운트
+  Map<String, int> get weeklyEmotionCounts {
+    if (_allDiaries == null) return {};
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 6));
+    final weekDiaries = _allDiaries!.where((d) {
+      final date = DateTime(d.date.year, d.date.month, d.date.day);
+      return date.isAfter(weekAgo.subtract(const Duration(days: 1))) && date.isBefore(now.add(const Duration(days: 1)));
+    });
+    final Map<String, int> counts = {};
+    for (final d in weekDiaries) {
+      counts[d.emotionTag] = (counts[d.emotionTag] ?? 0) + 1;
+    }
+    return counts;
   }
 }
