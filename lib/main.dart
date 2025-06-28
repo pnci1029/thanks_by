@@ -6,9 +6,12 @@ import 'screens/write/write_screen.dart';
 import 'screens/calendar/calendar_screen.dart';
 import 'screens/stats/stats_screen.dart';
 import 'core/theme.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting();
+
   runApp(
     MultiProvider(
       providers: [

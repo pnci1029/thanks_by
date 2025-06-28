@@ -9,8 +9,9 @@ class DiaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('MM월 dd일 (E)', 'ko_KR');
+    final dateFormat = DateFormat.yMMMd(Localizations.localeOf(context).languageCode);
     final isToday = _isToday(diary.date);
+    final theme = Theme.of(context);
 
     return Card(
       child: Padding(
@@ -32,7 +33,7 @@ class DiaryCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CAF50),
+                      color: theme.primaryColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
@@ -66,7 +67,7 @@ class DiaryCard extends StatelessWidget {
                       height: 20,
                       margin: const EdgeInsets.only(right: 8, top: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4CAF50),
+                        color: theme.primaryColor,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
