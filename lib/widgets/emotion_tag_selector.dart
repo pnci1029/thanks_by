@@ -15,13 +15,38 @@ class EmotionTagSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 8,
+      spacing: 12,
+      runSpacing: 12,
       children: tags.map((tag) {
         final isSelected = tag == selectedTag;
-        return ChoiceChip(
-          label: Text(tag),
-          selected: isSelected,
-          onSelected: (_) => onChanged(tag),
+        return GestureDetector(
+          onTap: () => onChanged(tag),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF4CAF50) : Colors.white,
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(
+                color: isSelected ? const Color(0xFF4CAF50) : Colors.grey.shade300,
+                width: 2,
+              ),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: const Color(0xFF4CAF50).withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ] : null,
+            ),
+            child: Text(
+              tag,
+              style: TextStyle(
+                fontSize: 18,
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ),
         );
       }).toList(),
     );
