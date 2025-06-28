@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('고마웠던 점'),
@@ -54,8 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 margin: const EdgeInsets.all(16),
                 child: todayDiary == null
-                    ? _buildWritePromptCard()
-                    : _buildTodayCompletedCard(todayDiary),
+                    ? _buildWritePromptCard(theme)
+                    : _buildTodayCompletedCard(todayDiary, theme),
               ),
               
               // 리스트 영역
@@ -71,16 +72,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildWritePromptCard() {
+  Widget _buildWritePromptCard(ThemeData theme) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.edit_note,
               size: 48,
-              color: Color(0xFF4CAF50),
+              color: theme.primaryColor,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -91,10 +92,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               '하루에 한 번, 3가지 고마웠던 점을 기록해보세요',
               style: TextStyle(
-                color: Color(0xFF666666),
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -120,16 +121,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTodayCompletedCard(diary) {
+  Widget _buildTodayCompletedCard(diary, ThemeData theme) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.check_circle,
               size: 48,
-              color: Color(0xFF4CAF50),
+              color: theme.primaryColor,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -142,8 +143,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             Text(
               '감정: ${diary.emotionTag}',
-              style: const TextStyle(
-                color: Color(0xFF666666),
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
                 fontSize: 14,
               ),
             ),
@@ -158,17 +159,17 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.note_add,
             size: 64,
-            color: Color(0xFFCCCCCC),
+            color: Theme.of(context).disabledColor,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             '아직 작성된 고마웠던 점이 없습니다',
             style: TextStyle(
               fontSize: 16,
-              color: Color(0xFF666666),
+              color: Theme.of(context).disabledColor,
             ),
           ),
         ],

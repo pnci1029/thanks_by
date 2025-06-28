@@ -63,6 +63,7 @@ class _WriteScreenState extends State<WriteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('오늘 고마웠던 점')),
       body: SingleChildScrollView(
@@ -85,10 +86,10 @@ class _WriteScreenState extends State<WriteScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       '각 줄은 1~20자까지 입력 가능합니다',
                       style: TextStyle(
-                        color: Color(0xFF666666),
+                        color: theme.textTheme.bodySmall?.color,
                         fontSize: 14,
                       ),
                     ),
