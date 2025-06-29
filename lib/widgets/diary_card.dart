@@ -9,92 +9,121 @@ class DiaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final dateFormat = DateFormat.yMMMd(Localizations.localeOf(context).languageCode);
     final isToday = _isToday(diary.date);
-    final theme = Theme.of(context);
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  dateFormat.format(diary.date),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              theme.cardColor,
+              theme.cardColor.withOpacity(0.95),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      dateFormat.format(diary.date),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.textTheme.titleLarge?.color,
+                      ),
+                    ),
                   ),
-                ),
-                if (isToday) ...[
-                  const SizedBox(width: 8),
+                  if (isToday) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '오늘',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: theme.primaryColor,
+                      color: theme.primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      '오늘',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: Text(
+                      diary.emotionTag,
+                      style: const TextStyle(fontSize: 20),
                     ),
                   ),
                 ],
-                const Spacer(),
-                Text(
-                  diary.emotionTag,
-                  style: const TextStyle(fontSize: 20),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...diary.lines.asMap().entries.map((entry) {
-              final index = entry.key;
-              final line = entry.value;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 20,
-                      height: 20,
-                      margin: const EdgeInsets.only(right: 8, top: 2),
-                      decoration: BoxDecoration(
-                        color: theme.primaryColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+              ),
+              const SizedBox(height: 16),
+              ...diary.lines.asMap().entries.map((entry) {
+                final index = entry.key;
+                final line = entry.value;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        margin: const EdgeInsets.only(right: 12, top: 2),
+                        decoration: BoxDecoration(
+                          color: theme.primaryColor,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.primaryColor.withOpacity(0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${index + 1}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        line,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          height: 1.4,
+                      Expanded(
+                        child: Text(
+                          line,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            height: 1.5,
+                            color: theme.textTheme.bodyLarge?.color,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ],
+                    ],
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
         ),
       ),
     );
