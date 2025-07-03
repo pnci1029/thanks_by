@@ -20,16 +20,24 @@ class _EditScreenState extends State<EditScreen> {
   final _maxLength = 20;
 
   bool _isEditable = false;
+  Timer? _timer;
+  String _remainingTime = '';
 
   @override
   void initState() {
     super.initState();
     _controllers = List.generate(
       3,
+
       (i) => TextEditingController(text: widget.diary.lines[i]),
     );
     _selectedEmotion = widget.diary.emotionTag;
     _updateEditable();
+    if (_isEditable) {
+      _updateRemainingTime();
+      _timer =
+          Timer.periodic(const Duration(seconds: 1), (_) => _updateRemainingTime());
+    }
   }
 
   void _updateEditable() {
@@ -40,8 +48,23 @@ class _EditScreenState extends State<EditScreen> {
     });
   }
 
+  void _updateRemainingTime() {
+    final nowKst = DateTime.now().toUtc().add(const Duration(hours: 9));
+    final midnightKst = DateTime.utc(nowKst.year, nowKst.month, nowKst.day + 1);
+    final remaining = midnightKst.difference(nowKst);
+
+    final hours = remaining.inHours;
+    final minutes = remaining.inMinutes.remainder(60);
+    final seconds = remaining.inSeconds.remainder(60);
+    setState(() {
+      _remainingTime =
+          '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    });
+  }
+
   @override
   void dispose() {
+    _timer?.cancel();
     for (final c in _controllers) {
       c.dispose();
     }
@@ -81,6 +104,20 @@ class _EditScreenState extends State<EditScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_isEditable)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Center(
+                  child: Text(
+                    '오늘까지 수정 가능합니다! (남은 시간: $_remainingTime)',
+                    style: TextStyle(
+                    
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
             ...List.generate(3, (i) => Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: TextField(
