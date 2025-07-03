@@ -14,6 +14,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
+  bool _showCompletedCard = true;
+  bool _showPromptCard = true;
+  bool _promptCardExpanded = true;
+
   @override
   void initState() {
     super.initState();
@@ -24,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-    
+
     Future.microtask(() {
       final provider = context.read<DiaryProvider>();
       provider.loadAllDiaries();
@@ -65,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           builder: (context, provider, _) {
             final diaries = provider.allDiaries;
             final todayDiary = provider.todayDiary;
-            
+
             if (diaries == null) {
               return const Center(
                 child: CircularProgressIndicator(),
@@ -74,14 +78,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
             return Column(
               children: [
-                // 상단 카드 영역
                 Container(
                   margin: const EdgeInsets.all(16),
                   child: todayDiary == null
-                      ? _buildWritePromptCard(theme)
-                      : _buildTodayCompletedCard(todayDiary, theme),
+                      ? _showPromptCard
+                          ? _buildWritePromptCard(theme)
+                          : _buildPromptCardCollapsed(theme)
+                      : (_showCompletedCard
+                          ? _buildTodayCompletedCard(theme)
+                          : const SizedBox.shrink()),
                 ),
-                
+
                 // 리스트 영역
                 Expanded(
                   child: diaries.isEmpty
@@ -96,76 +103,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildWritePromptCard(ThemeData theme) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              theme.primaryColor.withOpacity(0.1),
-              theme.primaryColor.withOpacity(0.05),
-            ],
-          ),
-        ),
+  Widget _buildPromptCardCollapsed(ThemeData theme) {
+    return GestureDetector(
+      onTap: () => setState(() => _showPromptCard = true),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.edit_note,
-                  size: 48,
-                  color: theme.primaryColor,
-                ),
-              ),
-              const SizedBox(height: 20),
+              const Icon(Icons.edit_note, color: Color(0xFF4CAF50)),
+              const SizedBox(width: 8),
               Text(
-                '오늘 고마웠던 점을 작성해보세요',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.textTheme.titleLarge?.color,
-                ),
-                textAlign: TextAlign.center,
+                '오늘 고마웠던 점 작성하기',
+                style: theme.textTheme.titleMedium,
               ),
-              const SizedBox(height: 12),
-              Text(
-                '하루에 한 번, 3가지 고마웠던 점을 기록해보세요',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.textTheme.bodySmall?.color,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.edit),
-                  label: const Text('작성하기'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () async {
-                    await Navigator.pushNamed(context, '/write');
-                    if (context.mounted) {
-                      context.read<DiaryProvider>().loadAllDiaries();
-                      context.read<DiaryProvider>().loadTodayDiary();
-                    }
-                  },
-                ),
-              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.expand_more),
             ],
           ),
         ),
@@ -173,64 +129,97 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTodayCompletedCard(diary, ThemeData theme) {
+  Widget _buildWritePromptCard(ThemeData theme) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.green.withOpacity(0.1),
-              Colors.green.withOpacity(0.05),
-            ],
+      child: Column(
+        children: [
+          ListTile(
+            leading: Icon(Icons.edit_note, color: theme.primaryColor, size: 36),
+            title: Text(
+              '오늘 고마웠던 점을 작성해보세요',
+              style: theme.textTheme.titleMedium,
+            ),
+            trailing: IconButton(
+              icon: Icon(_promptCardExpanded ? Icons.expand_less : Icons.expand_more),
+              onPressed: () => setState(() {
+                _promptCardExpanded = !_promptCardExpanded;
+                if (!_promptCardExpanded) _showPromptCard = false;
+              }),
+            ),
+          ),
+          if (_promptCardExpanded)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Column(
+                children: [
+                  Text(
+                    '하루에 한 번, 3가지 고마웠던 점을 기록해보세요',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.textTheme.bodySmall?.color,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.edit),
+                      label: const Text('작성하기'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        await Navigator.pushNamed(context, '/write');
+                        if (context.mounted) {
+                          context.read<DiaryProvider>().loadAllDiaries();
+                          context.read<DiaryProvider>().loadTodayDiary();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTodayCompletedCard(ThemeData theme) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: ListTile(
+        leading: Icon(Icons.check_circle, color: Colors.green, size: 36),
+        title: Text(
+          '오늘 고마웠던 점을 작성했습니다!',
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: Text(
+          '감정: 😊',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: Colors.green.shade700,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle,
-                  size: 48,
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                '오늘 고마웠던 점을 작성했습니다!',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.textTheme.titleLarge?.color,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '감정: ${diary.emotionTag}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.green.shade700,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Checkbox(
+              value: false,
+              onChanged: (v) => setState(() => _showCompletedCard = false),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => setState(() => _showCompletedCard = false),
+              tooltip: '오늘 하루 닫기',
+            ),
+          ],
         ),
       ),
     );
