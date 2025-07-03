@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ? _buildWritePromptCard(theme)
                           : _buildPromptCardCollapsed(theme)
                       : (_showCompletedCard
-                          ? _buildTodayCompletedCard(theme)
+                          ? _buildTodayCompletedCard(theme, todayDiary.emotionTag)
                           : const SizedBox.shrink()),
                 ),
 
@@ -202,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTodayCompletedCard(ThemeData theme) {
+  Widget _buildTodayCompletedCard(ThemeData theme, String emotionTag) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -211,47 +211,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 1. 메시지 한 줄
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 36),
-                const SizedBox(width: 16),
+                Icon(Icons.check_circle, color: Colors.green, size: 28),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '오늘 고마웠던 점을 작성했습니다!',
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '감정: 😊',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.green.shade700,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    '오늘 고마웠던 점을 작성했습니다!',
+                    style: theme.textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(
-                      value: false,
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      onChanged: (v) => setState(() => _showCompletedCard = false),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () => setState(() => _showCompletedCard = false),
-                      tooltip: '오늘 하루 닫기',
-                    ),
-                  ],
+              ],
+            ),
+            const SizedBox(height: 10),
+            // 2. 감정(왼쪽) + 버튼(오른쪽)
+            Row(
+              children: [
+                Text(
+                  '감정: $emotionTag',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
+                const Spacer(),
+                Checkbox(
+                  value: false,
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onChanged: (v) => setState(() => _showCompletedCard = false),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.green),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => setState(() => _showCompletedCard = false),
+                  tooltip: '오늘 하루 닫기',
                 ),
               ],
             ),
