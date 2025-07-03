@@ -19,8 +19,6 @@ class _EditScreenState extends State<EditScreen> {
   late String _selectedEmotion;
   final _maxLength = 20;
 
-  late Timer _timer;
-  Duration _timeLeft = Duration.zero;
   bool _isEditable = false;
 
   @override
@@ -31,23 +29,14 @@ class _EditScreenState extends State<EditScreen> {
       (i) => TextEditingController(text: widget.diary.lines[i]),
     );
     _selectedEmotion = widget.diary.emotionTag;
-    _updateEditableAndTimer();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateEditableAndTimer());
+    _updateEditable();
   }
 
-  void _updateEditableAndTimer() {
-    final nowKst = DateTime.now().toUtc().add(const Duration(hours: 9));
-    final todayKst = DateTime(nowKst.year, nowKst.month, nowKst.day);
-    final diaryDateKst = widget.diary.date.toUtc().add(const Duration(hours: 9));
-    final diaryDayKst = DateTime(diaryDateKst.year, diaryDateKst.month, diaryDateKst.day);
-
-    final isToday = todayKst == diaryDayKst;
-    final nextMidnight = DateTime(nowKst.year, nowKst.month, nowKst.day + 1);
-    final left = nextMidnight.difference(nowKst);
-
+  void _updateEditable() {
+    final nowKst = getKstDate(DateTime.now());
+    final diaryKst = getKstDate(widget.diary.date);
     setState(() {
-      _isEditable = isToday && left.inSeconds > 0;
-      _timeLeft = left;
+      _isEditable = nowKst == diaryKst;
     });
   }
 
@@ -56,7 +45,6 @@ class _EditScreenState extends State<EditScreen> {
     for (final c in _controllers) {
       c.dispose();
     }
-    _timer.cancel();
     super.dispose();
   }
 
@@ -86,14 +74,6 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    String formatDuration(Duration d) {
-      final h = d.inHours.toString().padLeft(2, '0');
-      final m = (d.inMinutes % 60).toString().padLeft(2, '0');
-      final s = (d.inSeconds % 60).toString().padLeft(2, '0');
-      return '$h:$m:$s';
-    }
-
     return Scaffold(
       appBar: AppBar(title: const Text('고마웠던 점 수정')),
       body: SingleChildScrollView(
@@ -101,28 +81,6 @@ class _EditScreenState extends State<EditScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_isEditable)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.timer, size: 18, color: Colors.green),
-                    const SizedBox(width: 6),
-                    Text(
-                      '오늘 자정까지 남은 시간: ',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                    Text(
-                      formatDuration(_timeLeft),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ...List.generate(3, (i) => Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: TextField(
@@ -162,5 +120,10 @@ class _EditScreenState extends State<EditScreen> {
         ),
       ),
     );
+  }
+
+  DateTime getKstDate(DateTime dt) {
+    final kst = dt.toUtc().add(const Duration(hours: 9));
+    return DateTime(kst.year, kst.month, kst.day);
   }
 }
