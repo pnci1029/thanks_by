@@ -68,4 +68,11 @@ class DiaryProvider with ChangeNotifier {
     }
     return counts;
   }
+
+  Future<void> updateDiary(Diary updated) async {
+    await DiaryDatabase.instance.updateDiary(updated);
+    await loadAllDiaries();
+    await loadTodayDiary();
+    notifyListeners();
+  }
 }

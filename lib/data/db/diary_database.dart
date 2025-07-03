@@ -69,4 +69,14 @@ class DiaryDatabase {
     );
     return result.map((map) => Diary.fromMap(map)).toList();
   }
+
+  Future<int> updateDiary(Diary diary) async {
+    final db = await instance.database;
+    return await db.update(
+      'diary',
+      diary.toMap(),
+      where: 'id = ?',
+      whereArgs: [diary.id],
+    );
+  }
 }
