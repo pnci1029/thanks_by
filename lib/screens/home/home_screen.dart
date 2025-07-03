@@ -61,6 +61,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             tooltip: '감정 통계',
             onPressed: () => Navigator.pushNamed(context, '/stats'),
           ),
+          if (!_showCompletedCard || !_showPromptCard)
+            IconButton(
+              icon: const Icon(Icons.info_outline, size: 22),
+              tooltip: '안내 다시 보기',
+              onPressed: () {
+                setState(() {
+                  _showCompletedCard = true;
+                  _showPromptCard = true;
+                  _promptCardExpanded = true;
+                });
+              },
+            ),
         ],
       ),
       body: FadeTransition(
@@ -194,30 +206,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ListTile(
-        leading: Icon(Icons.check_circle, color: Colors.green, size: 36),
-        title: Text(
-          '오늘 고마웠던 점을 작성했습니다!',
-          style: theme.textTheme.titleMedium,
-        ),
-        subtitle: Text(
-          '감정: 😊',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: Colors.green.shade700,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Checkbox(
-              value: false,
-              onChanged: (v) => setState(() => _showCompletedCard = false),
-            ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => setState(() => _showCompletedCard = false),
-              tooltip: '오늘 하루 닫기',
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 36),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '오늘 고마웠던 점을 작성했습니다!',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '감정: 😊',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.green.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Checkbox(
+                      value: false,
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      onChanged: (v) => setState(() => _showCompletedCard = false),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => setState(() => _showCompletedCard = false),
+                      tooltip: '오늘 하루 닫기',
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
