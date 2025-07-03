@@ -62,6 +62,15 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // 한국 시간 기준 오늘 날짜
+    final koreaNow = DateTime.now().toUtc().add(const Duration(hours: 9));
+    final koreaToday = DateTime(koreaNow.year, koreaNow.month, koreaNow.day);
+    final diaryDate = widget.diary.date.toUtc().add(const Duration(hours: 9));
+    final diaryDay = DateTime(diaryDate.year, diaryDate.month, diaryDate.day);
+
+    final isEditable = koreaToday == diaryDay;
+
     return Scaffold(
       appBar: AppBar(title: const Text('고마웠던 점 수정')),
       body: SingleChildScrollView(
@@ -75,6 +84,7 @@ class _EditScreenState extends State<EditScreen> {
                 controller: _controllers[i],
                 maxLength: _maxLength,
                 maxLines: 2,
+                enabled: isEditable,
                 decoration: InputDecoration(
                   labelText: '${i + 1}번째 고마웠던 점',
                   border: const OutlineInputBorder(),
@@ -87,13 +97,19 @@ class _EditScreenState extends State<EditScreen> {
             EmotionTagSelector(
               tags: ['😊', '😢', '😡', '😱', '😍', '😐'],
               selectedTag: _selectedEmotion,
-              onChanged: (tag) => setState(() => _selectedEmotion = tag),
+              onChanged: isEditable ? (tag) => setState(() => _selectedEmotion = tag) : (_) {},
             ),
             const SizedBox(height: 32),
+            if (!isEditable)
+              Text(
+                '고마웠던 점은 작성한 작성일만 수정할 수 있습니다.',
+                style: TextStyle(color: theme.colorScheme.error, fontWeight: FontWeight.w600),
+              ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _saveEdit,
+                onPressed: isEditable ? _saveEdit : null,
                 child: const Text('수정 완료'),
               ),
             ),
